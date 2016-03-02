@@ -5,23 +5,48 @@ object Main {
     val input = scala.io.Source.fromFile(args(0)).getLines.toList
     val containers = input.map(parseLine(_))
 
-    val combinations = containers.permutations.map(elem => {
+    //part 1
+    val combinations = getCombinations(containers, containers.size)
 
-      val sum = elem.foldLeft(0)((acc, curContainer) => {
-        if(acc == 150) acc
-        else           acc + curContainer.size
+    //part 2
+    val combinationsWithMinNumberOfContainers = 
+      (1 to containers.size).foldLeft(0)((acc, num) => {
+        if(acc != 0) acc
+        else         getCombinations(containers, num)
       })
-      sum == 150
-    }).filter(_ == true)
-      .size
 
     println(combinations)
+    println(combinationsWithMinNumberOfContainers)
   }
 
-  def parseLine(line: String): Container = {
-    Container(Integer.parseInt(line))
+
+  /**
+    * Returns the amount of container combinations that sum to 150 and 
+    * have less than the max number of containers.
+    * 
+    * @param lst The list of containers
+    * @param maxContainers The maximum of containers
+    */
+  def getCombinations(lst: List[Int], maxContainers: Int): Int = {
+
+    def getCombinations(lst: List[Int], numContainers: Int, acc: Int): Int = {
+      if(acc == 150)
+        1
+      else if(acc > 150 || numContainers > maxContainers) 
+        0
+      else 
+        lst match {
+          case Nil => 0
+          case x::xs => getCombinations(xs, numContainers, acc) + 
+                        getCombinations(xs, numContainers + 1, x + acc)
+        }
+    }
+    getCombinations(lst.sorted, 0, 0)
   }
 
-  case class Container(size: Int)
+  def parseLine(line: String): Int = {
+    Integer.parseInt(line)
+  }
+
 
 }
