@@ -4,13 +4,20 @@ object Main {
     val lines = scala.io.Source.fromFile(args(0)).getLines.toArray
     val lights = lines.map(_.toCharArray)
 
-    //part 1
+    //part 1 (need to use input.txt)
     println(getNumLightsOnAfterNumSteps(lights, 100, false))
 
-    //part 2
+    //part 2 (need to use input2.txt)
     println(getNumLightsOnAfterNumSteps(lights, 100, true))
   }
 
+  /**
+    * Returns the number of lights that will be on after the given number of steps.
+    * 
+    * @param lights The light grid
+    * @param steps The number of steps to perform
+    * @param cornerLightsAlwaysOn Whether the corner lights should always be considered on.
+    */
   def getNumLightsOnAfterNumSteps(lights: Array[Array[Char]], steps: Int, cornerLightsAlwaysOn: Boolean): Int = {
     @scala.annotation.tailrec
     def getNumLightsOnAfterNumSteps(curStep: Int, lights: Array[Array[Char]]): Int = {
@@ -62,6 +69,7 @@ object Main {
                 0
               } else {
                 (i + x, j + y) match {
+                  //ignore any case where we go off the grid
                   case (-1, _) => 0
                   case (_, -1) => 0
                   case (100, _) => 0
