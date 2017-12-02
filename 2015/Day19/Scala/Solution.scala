@@ -5,7 +5,11 @@ object Main {
     val lines = scala.io.Source.fromFile(args(0)).getLines.toArray
     val (replacements, inputs) = lines.span(!_.isEmpty)
     val (replacementRules, input) = (parseLines(replacements), inputs(1))
+
+    //part 1
     println(getNumDistinctMolecules(replacementRules, input))
+
+    //part 2
   }
 
   def getNumDistinctMolecules(replacementRules: Map[String, List[String]], input: String): Int = {
@@ -15,9 +19,8 @@ object Main {
         case x::y::xs => {
           val newPassedChars = passedChars :+ x
           val a = getMolecules(passedChars, x, y::xs)
-          val b = getMolecules(passedChars :+ x, y, xs)
           val c = getMolecules(passedChars, x + y, xs)
-          getDistinctMolecules(newPassedChars, y::xs, acc ++ a ++ b ++ c)
+          getDistinctMolecules(newPassedChars, y::xs, acc ++ a ++ c)
         }
         case x::Nil => {
           val newPassedChars = passedChars :+ x
@@ -35,6 +38,10 @@ object Main {
 
     getDistinctMolecules(Array[String](), input.split("").toList, Set[String]()).size
   }
+
+//  def fewestNumOfStepsToGetMedicineMolecule(replacementRules: Map[String, List[String]], input: String): Int = {
+
+//  }
 
 
   private def parseLines(lines: Array[String]): Map[String, List[String]] = {
