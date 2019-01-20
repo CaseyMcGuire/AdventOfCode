@@ -4,6 +4,8 @@ module rec Day01 =
     y: int
   }
 
+  exception NoDuplicatePointFoundException 
+
   type Direction = NORTH | SOUTH | WEST | EAST
 
   type Rotation = RIGHT | LEFT
@@ -53,9 +55,9 @@ module rec Day01 =
       | WEST -> {x = point.x - numBlocks; y = point.y}
       | EAST -> {x = point.x + numBlocks; y = point.y}
 
+  let distance point = abs point.x + abs point.y
+
   let findShortestPath movements = 
-    let startingPoint: Point = {x = 0; y = 0}
-    let currentDirection = NORTH
     let rec loop currentPoint currentDirection movements = 
       match movements with 
         x::xs -> 
@@ -64,6 +66,31 @@ module rec Day01 =
           loop nextPoint nextDirection xs
         | _ -> currentPoint
     let lastPoint = loop {x = 0; y = 0} NORTH movements 
-    abs lastPoint.x + abs lastPoint.y
-  
-printfn "%i" (Day01.findShortestPath (Day01.getMovements "input.txt"))
+    distance lastPoint
+
+  let findIntersectingPointOnPath (pointsOnPath: seq<Point>) (visitedPoints: Set<Point>): Option<Point> = 
+    Seq.fold (fun acc elem -> 
+            match acc with
+            None -> if Set.contains elem visitedPoints then Some elem else None
+           | Some x -> Some x) None pointsOnPath
+
+  let findFirstRepeatingPoint movements = 
+    let rec loop currentPoint currentDirection movements visitedPoints = 
+      match movements with 
+        x::xs -> 
+          let nextDirection = getNextDirection currentDirection x.rotation
+          let pointsOnPath: seq<Point> = Seq.map (fun num -> getNextPoint currentPoint nextDirection num) (Seq.init x.numBlocks id)       
+          let intersectionPoint: Option<Point> = findIntersectingPointOnPath pointsOnPath visitedPoints
+          match intersectionPoint with
+            Some x -> x
+            | None ->
+              let nextPoint = getNextPoint currentPoint nextDirection x.numBlocks
+              let nextSet = Set.ofSeq (Seq.append visitedPoints pointsOnPath)
+              loop nextPoint nextDirection xs nextSet
+       | _ -> raise NoDuplicatePointFoundException
+    let firstRepeatingPoint = loop {x = 0; y = 0} NORTH movements Set.empty
+    distance firstRepeatingPoint
+
+let movements = Day01.getMovements "input.txt"
+printfn "%i" (Day01.findShortestPath movements)
+printfn "%i" (Day01.findFirstRepeatingPoint movements)
